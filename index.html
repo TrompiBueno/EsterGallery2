@@ -1,0 +1,435 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Galería de Arte - Ester</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+  <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,400..900;1,400..900&family=Raleway:wght@300;400;500;600&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="https://unpkg.com/aos@next/dist/aos.css" />
+  <style id="app-style">
+    body {
+      font-family: 'Raleway', sans-serif;
+      background: #f8f5f2;
+      color: #333;
+      scroll-behavior: smooth;
+    }
+    
+    h1, h2, h3, h4, h5 {
+      font-family: 'Playfair Display', serif;
+    }
+    
+    .art-card {
+      transition: all 0.4s cubic-bezier(0.165, 0.84, 0.44, 1);
+      background: white;
+      border-radius: 0.75rem;
+      overflow: hidden;
+      height: 100%;
+      display: flex;
+      flex-direction: column;
+    }
+    
+    .art-card:hover {
+      transform: translateY(-8px);
+      box-shadow: 0 15px 30px rgba(0, 0, 0, 0.12);
+    }
+    
+    .art-card .image-container {
+      overflow: hidden;
+      position: relative;
+    }
+    
+    .art-card img {
+      transition: transform 1.2s ease;
+    }
+    
+    .art-card:hover img {
+      transform: scale(1.05);
+    }
+    
+    .price-tag {
+      background: #e9d8a6;
+      color: #333;
+      font-weight: 600;
+      display: inline-block;
+      padding: 0.35rem 0.9rem;
+      border-radius: 9999px;
+      box-shadow: 0 2px 6px rgba(233, 216, 166, 0.3);
+    }
+    
+    .header-logo {
+      font-family: 'Playfair Display', serif;
+      font-style: italic;
+      font-weight: 700;
+      background: linear-gradient(135deg, #333 0%, #000 100%);
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+    }
+    
+    .custom-navbar {
+      transition: all 0.3s ease;
+      background: rgba(255, 255, 255, 0.95);
+      backdrop-filter: blur(5px);
+    }
+    
+    .scroll-down-indicator {
+      animation: bounce 2s infinite;
+    }
+    
+    @keyframes bounce {
+      0%, 20%, 50%, 80%, 100% {
+        transform: translateY(0);
+      }
+      40% {
+        transform: translateY(-20px);
+      }
+      60% {
+        transform: translateY(-10px);
+      }
+    }
+    
+    .hero-section {
+      background: linear-gradient(to bottom, rgba(0,0,0,0.2), rgba(0,0,0,0.7)), 
+                  url('https://cdn.pixabay.com/photo/2016/11/18/13/03/abstract-1834728_1280.jpg') no-repeat center center;
+      background-size: cover;
+      height: 90vh;
+    }
+    
+    .iframe-container {
+      position: relative;
+      overflow: hidden;
+      box-shadow: 0 10px 30px rgba(0, 0, 0, 0.15);
+      border: 1px solid rgba(0, 0, 0, 0.1);
+      border-radius: 0.75rem;
+    }
+    
+    .section-divider {
+      height: 2px;
+      width: 80px;
+      background: #e9d8a6;
+      margin: 1.5rem auto;
+    }
+    
+    .contact-overlay {
+      position: fixed;
+      top: 0;
+      left: 0;
+      right: 0;
+      bottom: 0;
+      background: rgba(0, 0, 0, 0.7);
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      z-index: 50;
+      opacity: 0;
+      visibility: hidden;
+      transition: all 0.3s ease;
+    }
+    
+    .contact-overlay.active {
+      opacity: 1;
+      visibility: visible;
+    }
+    
+    .contact-panel {
+      background: white;
+      max-width: 500px;
+      width: 90%;
+      padding: 2rem;
+      border-radius: 0.75rem;
+      transform: translateY(20px);
+      opacity: 0;
+      transition: all 0.4s ease;
+    }
+    
+    .contact-overlay.active .contact-panel {
+      transform: translateY(0);
+      opacity: 1;
+    }
+    
+    .back-to-top {
+      position: fixed;
+      bottom: 20px;
+      right: 20px;
+      background: #333;
+      color: white;
+      width: 40px;
+      height: 40px;
+      border-radius: 50%;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      cursor: pointer;
+      opacity: 0;
+      visibility: hidden;
+      transition: all 0.3s ease;
+      z-index: 40;
+    }
+    
+    .back-to-top.visible {
+      opacity: 1;
+      visibility: visible;
+    }
+    
+    /* Loading animation */
+    .loading-spinner {
+      width: 50px;
+      height: 50px;
+      border: 5px solid rgba(233, 216, 166, 0.3);
+      border-radius: 50%;
+      border-top: 5px solid #e9d8a6;
+      animation: spin 1s linear infinite;
+      margin: 0 auto;
+    }
+    
+    @keyframes spin {
+      0% { transform: rotate(0deg); }
+      100% { transform: rotate(360deg); }
+    }
+    
+    /* Filters */
+    .filter-btn {
+      transition: all 0.3s ease;
+      border-bottom: 2px solid transparent;
+    }
+    
+    .filter-btn.active {
+      color: #000;
+      font-weight: 600;
+      border-bottom: 2px solid #e9d8a6;
+    }
+  </style>
+</head>
+<body>
+  <nav class="custom-navbar fixed w-full top-0 py-4 px-4 md:px-8 z-40 border-b border-gray-200">
+    <div class="container mx-auto flex justify-between items-center">
+      <h1 class="header-logo text-3xl md:text-4xl">Galería de Ester</h1>
+      <div class="hidden md:flex space-x-8 items-center">
+        <a href="#obras" class="hover:text-gray-700 transition-colors">Colección</a>
+        <a href="#contacto" class="hover:text-gray-700 transition-colors">Contacto</a>
+        <button id="contactBtn" class="bg-black text-white px-6 py-2 rounded-full hover:bg-gray-800 transition-colors">
+          Consultar
+
+    </div>
+    
+    <!-- Mobile menu -->
+    <div id="mobileMenu" class="hidden md:hidden absolute top-full left-0 right-0 bg-white shadow-md py-4 px-6 border-b border-gray-200">
+      <div class="flex flex-col space-y-4">
+        <a href="" class="hover:text-gray-700 transition-colors">Colección</a>
+        <a href="" class="hover:text-gray-700 transition-colors">Contacto</a>
+      </div>
+    </div>
+  </nav>
+
+  <!-- Hero Section -->
+  <section class="hero-section flex items-center justify-center text-white">
+    <div class="container mx-auto text-center px-4">
+      <h1 class="text-4xl md:text-6xl lg:text-7xl font-bold mb-6" data-aos="fade-up">Arte que inspira</h1>
+      <p class="text-xl md:text-2xl max-w-2xl mx-auto mb-10" data-aos="fade-up" data-aos-delay="100">
+        Descubre una selección de obras únicas creadas por la artista Ester
+      </p>
+      
+
+    </div>
+  </section>
+
+  <main class="container mx-auto py-16 px-4 md:px-8 mt-10">
+    <section id="coleccion" class="mb-16 pt-8">
+      <div class="text-center mb-12" data-aos="fade-up">
+        <h2 class="text-3xl md:text-5xl mb-3">Nuestra Colección</h2>
+        <div class="section-divider"></div>
+        <p class="text-gray-600 max-w-2xl mx-auto">
+          Explora esta cuidada selección de obras de arte creadas con pasión y dedicación.
+        </p>
+      </div>
+
+      <!-- Document embed -->
+      <div class="mb-16 iframe-container" data-aos="fade-up">
+        <iframe 
+          src="https://docs.google.com/document/d/1pFIPdBNsjGoJCtq8S7MJBOBEkwQdPPVBVAmO70-Hlxs/preview" 
+          width="100%" 
+          height="800" 
+          allow="autoplay">
+        </iframe>
+      </div>
+    </section>
+
+
+
+    <section id="contacto" class="py-10">
+      <div class="text-center mb-12" data-aos="fade-up">
+        <h2 class="text-3xl md:text-5xl mb-3">Contacto</h2>
+        <div class="section-divider"></div>
+        <p class="text-gray-600 max-w-2xl mx-auto">
+          ¿Tienes alguna pregunta? ¿Te interesa alguna obra en particular? Contacta con nosotros.
+        </p>
+      </div>
+      
+      <div class="max-w-4xl mx-auto grid md:grid-cols-2 gap-8">
+        <div class="bg-white p-8 rounded-lg shadow-md" data-aos="fade-right">
+          <h3 class="text-2xl mb-4">Información</h3>
+          <div class="space-y-4">
+            <p class="flex items-center">
+              <i class="fas fa-phone-alt w-8 text-gray-600"></i>
+              <span>+34 000 000 000</span>
+            </p>
+            <p class="flex items-center">
+              <i class="fas fa-envelope w-8 text-gray-600"></i>
+              <span>galeria.ester@ejemplo.com</span>
+            </p>
+            <p class="flex items-center">
+              <i class="fas fa-clock w-8 text-gray-600"></i>
+              <span>Me puedes escribir cuando quieras, te responderé lo antes posible</span>
+            </p>
+          </div>
+          
+
+          </div>
+        </div>
+        
+ 
+  </main>
+
+  <footer class="bg-gray-900 text-white py-12 px-4 md:px-8 mt-12">
+    <div class="container mx-auto">
+      <div class="grid md:grid-cols-3 gap-8">
+        <div>
+          <h3 class="header-logo text-2xl md:text-3xl mb-4 bg-gradient-to-r from-white via-gray-100 to-white bg-clip-text text-transparent">
+  Galería de Ester
+</h3>
+
+          <p class="text-gray-400">Un espacio donde el arte cobra vida y se convierte en parte de tu historia.</p>
+        </div>
+        <div>
+          <h4 class="text-xl mb-4">Horario</h4>
+          <p class="text-gray-400">Me puedes escribir cuando quieras, te responderé lo antes posible.</p>
+        </div>
+      </div>
+      <div class="border-t border-gray-800 mt-8 pt-8 text-center">
+        <p class="text-gray-400">Galería de Ester.</p>
+      </div>
+    </div>
+  </footer>
+
+  <!-- Contact overlay -->
+  <div class="contact-overlay" id="contactOverlay">
+    <div class="contact-panel">
+      <div class="flex justify-between items-center mb-6">
+        <h3 class="text-2xl font-semibold">Contáctanos</h3>
+        <button class="text-xl" id="closeOverlay">
+          <i class="fas fa-times"></i>
+        </button>
+      </div>
+      <p class="mb-4 text-gray-600">Estamos disponibles para responder cualquier consulta sobre nuestras obras.</p>
+      <div class="space-y-4 mb-6">
+        <p class="flex items-center">
+          <i class="fas fa-phone-alt w-8 text-gray-600"></i>
+          <span>+34 123 2455 456</span>
+        </p>
+        <p class="flex items-center">
+          <i class="fas fa-envelope w-8 text-gray-600"></i>
+          <span>galeria.ester@example.com</span>
+        </p>
+      </div>
+    </div>
+  </div>
+
+  <!-- Back to top button -->
+  <button class="back-to-top" id="backToTop" aria-label="Volver arriba">
+    <i class="fas fa-arrow-up"></i>
+  </button>
+
+  <script src="https://unpkg.com/aos@next/dist/aos.js"></script>
+  <script id="app-script">
+    // Initialize AOS
+    AOS.init({
+      duration: 800,
+      once: true
+    });
+    
+    // Mobile menu toggle
+    const mobileMenuBtn = document.getElementById('mobileMenuBtn');
+    const mobileMenu = document.getElementById('mobileMenu');
+    
+    mobileMenuBtn.addEventListener('click', () => {
+      mobileMenu.classList.toggle('hidden');
+    });
+    
+    // Contact overlay
+    const contactBtn = document.getElementById('contactBtn');
+    const mobileContactBtn = document.getElementById('mobileContactBtn');
+    const contactOverlay = document.getElementById('contactOverlay');
+    const closeOverlay = document.getElementById('closeOverlay');
+    
+    contactBtn.addEventListener('click', () => {
+      contactOverlay.classList.add('active');
+      document.body.style.overflow = 'hidden';
+    });
+    
+    mobileContactBtn.addEventListener('click', () => {
+      contactOverlay.classList.add('active');
+      document.body.style.overflow = 'hidden';
+    });
+    
+    closeOverlay.addEventListener('click', () => {
+      contactOverlay.classList.remove('active');
+      document.body.style.overflow = '';
+    });
+    
+    // Handle form submissions
+    document.getElementById('contactForm').addEventListener('submit', (e) => {
+      e.preventDefault();
+      alert('');
+    });
+    
+    document.getElementById('overlayForm').addEventListener('submit', (e) => {
+      e.preventDefault();
+      alert('Este es un prototipo. En la versión final, este formulario enviará los datos al servidor.');
+      contactOverlay.classList.remove('active');
+      document.body.style.overflow = '';
+    });
+    
+    // Back to top button
+    const backToTopButton = document.getElementById('backToTop');
+    
+    window.addEventListener('scroll', () => {
+      if (window.pageYOffset > 300) {
+        backToTopButton.classList.add('visible');
+      } else {
+        backToTopButton.classList.remove('visible');
+      }
+    });
+    
+    backToTopButton.addEventListener('click', () => {
+      window.scrollTo({
+        top: 0,
+        behavior: 'smooth'
+      });
+    });
+    
+    // Smooth scroll for anchor links
+    document.querySelectorAll('a[href^="#"]').forEach(anchor => {
+      anchor.addEventListener('click', function(e) {
+        e.preventDefault();
+        
+        // Close mobile menu if open
+        mobileMenu.classList.add('hidden');
+        
+        const targetId = this.getAttribute('href');
+        const targetElement = document.querySelector(targetId);
+        
+        if (targetElement) {
+          const navHeight = document.querySelector('.custom-navbar').offsetHeight;
+          const targetPosition = targetElement.getBoundingClientRect().top + window.pageYOffset - navHeight;
+          
+          window.scrollTo({
+            top: targetPosition,
+            behavior: 'smooth'
+          });
+        }
+      });
+    });
+  </script>
+</body>
+</html>
